@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+# Install dependencies for the project
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+################################################################################
+# Lint the gpgenv script
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns
+#   None
+################################################################################
+function lint_gpgenv {
+    command -v shellcheck >/dev/null 2>&1 || {
+        echo "shellcheck command not found."
+        echo
+        echo "Please install shellcheck:"
+        echo
+        echo "  Ubuntu: sudo apt install shellcheck"
+        echo "  MacOS: brew install shellcheck"
+    }
+
+    # Exclude SC2148 because the script is meant to be sourced
+    shellcheck --exclude=SC2148 "$DIR/gpgenv"
+}
+
+################################################################################
+# Program main function
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns
+#   None
+################################################################################
+function main {
+  lint_gpgenv
+}
+
+main $@

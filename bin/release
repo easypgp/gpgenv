@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+# Create a new release for gpgenv
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+SCRIPT=release
+INFO="
+Release a new version of gpgenv
+"
+
+function usage
+{
+   echo
+   echo $INFO
+   echo
+   echo -e " \033[4mUsage:\033[0m $SCRIPT <version>"
+   echo
+   echo "          Options :"
+   echo "              -h           display this help"
+   echo
+   echo -e " \033[4mExemples:\033[0m "
+   echo -e "       $SCRIPT 1.0.0"
+   echo
+
+   exit 255
+}
+
+
+# Read parameters
+while getopts "p:h" options; do
+   case $options in
+    h|?) usage
+         ;;
+      *) usage
+         ;;
+  esac
+done
+# remove read arguments
+shift $(( OPTIND - 1 ))
+
+################################################################################
+# bump_version description
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns
+#   None
+################################################################################
+function bump_version {
+  local version=$1
+  local release_branch="release-${version}"
+
+  echo -e "\$GPGENV_VERSION="${version}"\n$(cat "${DIR}/gpgpenv")" > "${DIR}/gpgpenv"
+  git checkout -b "${release_branch}"
+  git add "${DIR}/gpgpenv"
+  git commit -m "Bump version to $version"
+  git tag -a $version -m "Release $version"
+  git push origin $version
+  git checkout -
+  git branch -D "release-${version}"
+}
+
+################################################################################
+# Program main function
+# Globals:
+#   None
+# Arguments:
+#   version
+# Returns
+#   None
+################################################################################
+function main {
+  if [ $# -ne 1 ]; then
+    usage
+  fi
+
+  bump_version $1
+}
+
+main $@
+
+

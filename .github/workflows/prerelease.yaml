@@ -1,0 +1,32 @@
+---
+name: "pre-release"
+permissions:
+  packages: write
+  contents: write
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  tagged-release:
+    name: "Pre Release"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: "actions/checkout@v2"
+
+      - name: "lint"
+        run: "./bin/lint"
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          title: "Development Build"
+          automatic_release_tag: "dev"
+          prerelease: true
+          files: |
+            gpgenv
+            LICENSE
+            README.markdown
